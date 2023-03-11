@@ -12,9 +12,11 @@ namespace BulkyBookWeb.Controllers;
     public class ProductController : Controller
     {
         private readonly IUnitofWork _unitofWork;
-        public ProductController(IUnitofWork unitofWork)
+    private readonly IWebHostEnvironment _hostEnvironment;
+        public ProductController(IUnitofWork unitofWork, IWebHostEnvironment hostEnvironment)
         {
             _unitofWork = unitofWork;
+        _hostEnvironment = hostEnvironment;
         }
 
 
@@ -64,9 +66,22 @@ namespace BulkyBookWeb.Controllers;
         {
             if (ModelState.IsValid)
             {
-              //  _unitofWork.CoverType.Update(obj);
+            string wwwRootPath = _hostEnvironment.WebRootPath;
+            if(file != null)
+            {
+                string fileName = Guid.NewGuid().ToString();
+                var uploads = Path.Combine(wwwRootPath, @"images\products");
+                var extension = Path.GetExtension(file.FileName);
+                using(var fileStream = new FileStream(Path.Combine(uploads,fileName+extension),FileMode.Create))
+                {
+                    file.CopyTo(fileStream);
+
+                }
+                    obj.Product.ImageUrl= @"\images\products\"+fileName+extension;
+            }
+              _unitofWork.Product.Add(obj.Product);
                 _unitofWork.Save();
-                TempData["success"] = "CoverType updated sccessfully";
+                TempData["success"] = " Product created sccessfully";
                 return RedirectToAction("Index");
             }
             return View(obj);
