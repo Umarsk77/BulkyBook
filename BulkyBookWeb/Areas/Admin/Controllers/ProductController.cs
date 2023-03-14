@@ -127,7 +127,7 @@ namespace BulkyBookWeb.Controllers;
     #region API CALLS
     [HttpGet]
     public IActionResult GetAll() {
-    var productList = _unitofWork.Product.GetAll();
+    var productList = _unitofWork.Product.GetAll(includeProperties:"Category,CoverType");
         return Json(new {data  = productList});
     }
     #endregion
